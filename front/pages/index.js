@@ -1,13 +1,11 @@
-import React, { Component } from 'react'
-import { ethers } from 'ethers'
+import React, { Component } from 'react';
+import { ethers } from 'ethers';
+import { ConnectWallet } from '../components/ConnectWallet';
+import auctionAddress from '../contracts/DutchAuction-contract-address.json';
+import auctionArtifact from '../contracts/DutchAuction.json';
 
-import { ConnectWallet } from '../components/ConnectWallet'
-
-import auctionAddress from '../contracts/DutchAuction-contract-address.json'
-import auctionArtifact from '../contracts/DutchAuction.json'
-
-const HARDHAT_NETWORK_ID = '1337'
-const ERROR_CODE_TX_REJECTED_BY_USER = 4001
+const HARDHAT_NETWORK_ID = '31337';
+const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 
 export default class extends Component {
   constructor(props) {
@@ -54,7 +52,8 @@ export default class extends Component {
   }
 
   async _initialize(selectedAddress) {
-    this._provider = new ethers.providers.Web3Provider(window.ethereum)
+    this._provider = new ethers.BrowserProvider(window.ethereum);
+    // this._provider = new ethers.providers.Web3Provider(window.ethereum);
 
     this._auction = new ethers.Contract(
       auctionAddress.DutchAuction,
@@ -111,7 +110,7 @@ export default class extends Component {
     return(
       <>
         {this.state.balance &&
-          <p>Your balance: {ethers.utils.formatEther(this.state.balance)} ETH</p>}
+          <p>Your balance: {ethers.formatEther(this.state.balance)} ETH</p>}
       </>
     )
   }
