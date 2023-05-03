@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { ConnectWallet } from '../components/ConnectWallet';
 import auctionAddress from '../contracts/DutchAuction-contract-address.json';
 import auctionArtifact from '../contracts/DutchAuction.json';
+// import { setIntervalAsync, clearIntervalAsync } from 'set-interval-async';
 
 const HARDHAT_NETWORK_ID = '31337';
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
@@ -17,6 +18,7 @@ export default class extends Component {
       networkError: null,
       transactionError: null,
       balance: null,
+      currentPrice: null,
     }
 
     this.state = this.initialState
@@ -58,14 +60,29 @@ export default class extends Component {
     this._auction = new ethers.Contract(
       auctionAddress.DutchAuction,
       auctionArtifact.abi,
-      this._provider.getSigner(0)
+      await this._provider.getSigner(0)
     )
+
+    this.startingPrice = await this._auction.startingPrice()
+    this.startAt = ethers.getBigInt(await this._auction.startAt() * 1000n)
+    this.discountRate = await this._auction.discountRate()
 
     this.setState({
       selectedAccount: selectedAddress
     }, async () => {
       await this.updateBalance()
     })
+
+    // this.checkPriceInterval = setInterval(() => {
+    //   const elapsed = ethers.getBigInt(
+    //     Date.now()
+    //   ) - (this.startAt)
+    //   const discount = (this.discountRate) * (elapsed)
+    //   const newPrice = (this.startingPrice) - (discount)
+    //   this.setState({
+    //     currentPrice: ethers.formatEther(newPrice)
+    //   })
+    // }, 1000)
   }
 
   async updateBalance() {
@@ -98,6 +115,10 @@ export default class extends Component {
     })
   }
 
+  // nextBlock = async() => {
+  //   await this._auction.nextBlock()
+  // }
+
   render() {
     if(!this.state.selectedAccount) {
       return <ConnectWallet
@@ -111,6 +132,13 @@ export default class extends Component {
       <>
         {this.state.balance &&
           <p>Your balance: {ethers.formatEther(this.state.balance)} ETH</p>}
+
+          {this.state.currentPrice &&
+          <div>
+            <p>Current NFT price: {this.state.currentPrice} ETH</p>
+            <button onClick={this.nextBlock}>Next block</button>
+          </div>
+          }
       </>
     )
   }
