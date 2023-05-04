@@ -58,7 +58,6 @@ export default class extends Component {
 
   async _initialize(selectedAddress) {
     this._provider = new ethers.BrowserProvider(window.ethereum);
-    // this._provider = new ethers.providers.Web3Provider(window.ethereum);
 
     this._auction = new ethers.Contract(
       auctionAddress.DutchAuction,
@@ -154,10 +153,6 @@ export default class extends Component {
       transactionError: null 
     })
   }
-
-  // nextBlock = async() => {
-  //   await this._auction.nextBlock()
-  // }
 
   buy = async() => {
     try {
