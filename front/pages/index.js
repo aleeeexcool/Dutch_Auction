@@ -3,6 +3,8 @@ import { ethers } from 'ethers';
 import { ConnectWallet } from '../components/ConnectWallet';
 import auctionAddress from '../contracts/DutchAuction-contract-address.json';
 import auctionArtifact from '../contracts/DutchAuction.json';
+import { WaitingForTransactionMessage } from '../components/WaitingForTransactionMessage';
+import { TransactionErrorMessage } from '../components/TransactionErrorMessage';
 // import { setIntervalAsync, clearIntervalAsync } from 'set-interval-async';
 
 const HARDHAT_NETWORK_ID = '31337';
@@ -19,6 +21,7 @@ export default class extends Component {
       transactionError: null,
       balance: null,
       currentPrice: null,
+      stopped: false,
     }
 
     this.state = this.initialState
@@ -63,26 +66,57 @@ export default class extends Component {
       await this._provider.getSigner(0)
     )
 
-    this.startingPrice = await this._auction.startingPrice()
-    this.startAt = ethers.getBigInt(await this._auction.startAt() * 1000n)
-    this.discountRate = await this._auction.discountRate()
-
     this.setState({
       selectedAccount: selectedAddress
     }, async () => {
       await this.updateBalance()
     })
 
-    // this.checkPriceInterval = setInterval(() => {
-    //   const elapsed = ethers.getBigInt(
-    //     Date.now()
-    //   ) - (this.startAt)
-    //   const discount = (this.discountRate) * (elapsed)
-    //   const newPrice = (this.startingPrice) - (discount)
-    //   this.setState({
-    //     currentPrice: ethers.formatEther(newPrice)
-    //   })
-    // }, 1000)
+    if(await this.updateStopped()) { return }
+
+    this.startingPrice = await this._auction.startingPrice()
+    this.startAt = ethers.getBigInt(await this._auction.startAt() * 1000n)
+    this.discountRate = await this._auction.discountRate()
+
+    this.checkPriceInterval = setInterval(() => {
+      const elapsed = ethers.getBigInt(
+        Date.now()
+      ) - (this.startAt)
+      const discount = (this.discountRate) * (elapsed)
+      const newPrice = (this.startingPrice) - (discount)
+      this.setState({
+        currentPrice: ethers.formatEther(newPrice)
+      })
+    }, 1000)
+
+    // @dev - Выводить ивенты на фронт-енд + это решение проблемы
+    // когда выводять старые ивенты за всё время
+    
+    // const startBlockNumber = await this._provider.getBlockNumber()
+    // this._auction.on('Bought', (...args) => {
+    //   const event = args[args.length - 1]
+    //   if(event.blockNumber <= startBlockNumber) return
+
+    //   args[0], args[1]
+    // })
+  }
+
+  updateStopped = async() => {
+    const stopped = await this._auction.stopped()
+
+    if(stopped) {
+      clearInterval(this.checkPriceInterval)
+    }
+
+    this.setState({
+      stopped: stopped
+    })
+
+    return stopped
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.checkPriceInterval)
   }
 
   async updateBalance() {
@@ -115,9 +149,52 @@ export default class extends Component {
     })
   }
 
+  _dismissTransactionError = () => {
+    this.setState({ 
+      transactionError: null 
+    })
+  }
+
   // nextBlock = async() => {
   //   await this._auction.nextBlock()
   // }
+
+  buy = async() => {
+    try {
+      const tx = await this._auction.buy({
+        value: ethers.parseEther(this.state.currentPrice),
+        gasLimit: 90000
+      })
+
+      this.setState({
+        txBeingSent: tx.hash
+      })
+
+      await tx.wait()
+    } catch(error) {
+      if(error.code === ERROR_CODE_TX_REJECTED_BY_USER) { return }
+
+      console.error(error)
+
+      this.setState({
+        transactionError: error
+      })
+    } finally {
+      this.setState({
+        txBeingSent: null
+      })
+      await this.updateBalance()
+      await this.updateStopped()
+    }
+  }
+
+  _getRpcErrorMessage(error) {
+    if (error.data) {
+      return error.data.message
+    }
+
+    return error.message
+  }
 
   render() {
     if(!this.state.selectedAccount) {
@@ -128,17 +205,31 @@ export default class extends Component {
       />
     }
 
+    if(this.state.stopped) {
+      return <p>Auction stopped.</p>
+    }
+
     return(
       <>
+        {this.state.txBeingSent && (
+          <WaitingForTransactionMessage txHash={this.state.txBeingSent} />
+        )}
+
+        {this.state.transactionError && (
+          <TransactionErrorMessage
+            message={this._getRpcErrorMessage(this.state.transactionError)}
+            dismiss={this._dismissTransactionError}
+          />
+        )}
+
         {this.state.balance &&
           <p>Your balance: {ethers.formatEther(this.state.balance)} ETH</p>}
 
-          {this.state.currentPrice &&
+        {this.state.currentPrice &&
           <div>
             <p>Current NFT price: {this.state.currentPrice} ETH</p>
-            <button onClick={this.nextBlock}>Next block</button>
-          </div>
-          }
+            <button onClick={this.buy}>Buy!</button>
+          </div>}
       </>
     )
   }
