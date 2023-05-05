@@ -1,0 +1,32 @@
+body {
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+  width: 100vw;
+  margin: 0px;
+}
+
+.background {
+ width: 100vw;
+ height: 100vh;
+ background: linear-gradient(75deg, rgb(40, 52, 91) 0%, rgb(68, 81, 123) 50%, rgba(60, 71, 107, 0.8) 100%);
+ display: table-cell;
+ vertical-align: middle;
+}
+
+.nft-label {
+  font-size: 18px;
+  font-family: 'Avenir';
+  letter-spacing: 0.5px;
+  color: #afafaf;
+  padding-bottom: 24px;
+}
+
+.balance {
+  font-size: 42px; 
+  font-family: 'Avenir'; 
+  font-weight: 800; 
+  letter-spacing: 0.5px; 
+  color: #e8e8e8; 
+  padding-bottom: 12px; 
+}

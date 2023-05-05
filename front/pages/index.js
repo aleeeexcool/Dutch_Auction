@@ -205,7 +205,7 @@ export default class extends Component {
     }
 
     return(
-      <>
+      <div>
         {this.state.txBeingSent && (
           <WaitingForTransactionMessage txHash={this.state.txBeingSent} />
         )}
@@ -225,7 +225,7 @@ export default class extends Component {
             <p>Current NFT price: {this.state.currentPrice} ETH</p>
             <button onClick={this.buy}>Buy!</button>
           </div>}
-      </>
+      </div>
     )
   }
 }

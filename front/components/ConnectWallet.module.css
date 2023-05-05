@@ -1,0 +1,37 @@
+.wallet {
+  width: 10%;
+  height: 50px;
+  justify-content: center;
+  color: white;
+  background-color: #188ec9;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  font-family: "Avenir";
+  cursor: pointer;
+  transition: all .44s ease;
+  -webkit-transition: all .44s ease;
+  -moz-transition: all .44s ease;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+.wallet:hover { filter: brightness(150%); }
+
+.buttonWallet {
+  font-size: 15px;
+  font-family: 'Avenir';
+  letter-spacing: 1px;
+  text-align: center;
+  margin: 0;
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  color: #474545;
+  padding-bottom: 25px;
+}
