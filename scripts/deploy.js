@@ -16,8 +16,8 @@ async function main() {
 
   console.log("Deploying with", await deployer.getAddress())
 
-  const DutchAuction = await ethers.getContractFactory("DutchAuction", deployer)
-  const auction = await DutchAuction.deploy(
+  const NFTAuction = await ethers.getContractFactory("NFTAuction", deployer)
+  const auction = await NFTAuction.deploy(
     ethers.utils.parseEther('2.0'),
     1,
     "New NFT"
@@ -25,7 +25,7 @@ async function main() {
   await auction.deployed()
 
   saveFrontendFiles({
-    DutchAuction: auction
+    NFTAuction: auction
   })
 }
 
