@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -83,14 +83,13 @@ contract NFTAuction is Ownable, Pausable {
     }
 
     function setAuctionFee(uint256 fee) public virtual onlyOwner {
-        require(
-            _auctionCount == 0,
-            "Fee can't be changed if there is ongoing auction."
-        );
+        require(_auctionCount == 0, "Fee can't be changed if there is ongoing auction.");
+        require(fee <= 1000, "Fee can't be more than 10%.");
         _auctionFee = fee;
     }
 
     function setAuctionFeeRecipient(address recipient) public virtual onlyOwner {
+        require(address(recipient) != address(0), "Recipient can't be zero address.");
         _auctionFeeRecipient = recipient;
     }
 
