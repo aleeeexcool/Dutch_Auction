@@ -4,24 +4,14 @@ const fs = require('fs');
 const path = require('path');
 
 async function main() {
-  if (network.name === "hardhat") {
-    console.warn(
-      "You are trying to deploy a contract to the Hardhat Network, which" +
-      "gets automatically created and destroyed every time. Use the Hardhat" +
-      " option '--network localhost'"
-    );
-  }
-
   const [deployer] = await ethers.getSigners()
 
   console.log("Deploying with", await deployer.getAddress())
 
   const NFTAuction = await ethers.getContractFactory("NFTAuction", deployer)
-  const auction = await NFTAuction.deploy(
-    ethers.utils.parseEther('2.0'),
-    1,
-    "New NFT"
-  )
+  //first arg what's the fee for the auction house, 1% - 100, 100% - 10000, range 1-10000 means 0.01% - 100%
+  //second arg is the address of recipient of the auction fee
+  const auction = await NFTAuction.deploy(0, address)
   await auction.deployed()
 
   saveFrontendFiles({
