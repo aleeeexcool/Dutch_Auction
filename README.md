@@ -1,3 +1,3 @@
-# NFT_auction
+# NFTAuction
 
 ...
