@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract MyNFT {
@@ -47,12 +47,12 @@ contract NFTAuction is Ownable, Pausable {
 
     uint256 private _auctionCount = 0;
 
-    string[] private _openAuctions;
+    string[] public _openAuctions;
 
     // in percents, what's the fee for the auction house, 1% - 100, 100% - 10000, range 1-10000 means 0.01% - 100%
-    uint256 private _auctionFee;
+    uint256 public _auctionFee;
     // recipient of the auction fee
-    address private _auctionFeeRecipient;
+    address public _auctionFeeRecipient;
 
     /**
      * @dev Emitted when new auction is created by the owner of the contract. Amount is valid only for ERC-1155 tokens
@@ -77,47 +77,6 @@ contract NFTAuction is Ownable, Pausable {
     }
 
     receive() external payable {}
-
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) public virtual returns (bytes4) {
-        return this.onERC1155Received.selector;
-    }
-
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] memory,
-        uint256[] memory,
-        bytes memory
-    ) public virtual returns (bytes4) {
-        return this.onERC1155BatchReceived.selector;
-    }
-
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public virtual returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
-
-    function getAuctionFee() public view virtual returns (uint256) {
-        return _auctionFee;
-    }
-
-    function getOpenAuctions() public view virtual returns (string[] memory) {
-        return _openAuctions;
-    }
-
-    function getAuctionFeeRecipient() public view virtual returns (address) {
-        return _auctionFeeRecipient;
-    }
 
     function getAuction(string memory id) public view virtual returns (Auction memory) {
         return _auctions[id];
@@ -151,7 +110,7 @@ contract NFTAuction is Ownable, Pausable {
             require(amount > 0);
             require(
                 IERC1155(nftAddress).balanceOf(seller, tokenId) >= amount,
-                "ERC1155 token balance is not sufficient for the seller.."
+                "ERC1155 token balance is not sufficient for the seller."
             );
             IERC1155(nftAddress).safeTransferFrom(seller,address(this),tokenId,amount,"");
         } else {
