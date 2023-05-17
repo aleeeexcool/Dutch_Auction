@@ -54,6 +54,11 @@ contract NFTAuction is Ownable, Pausable {
     // recipient of the auction fee
     address public _auctionFeeRecipient;
 
+    constructor(uint256 fee, address feeRecipient) {
+        _auctionFee = fee;
+        _auctionFeeRecipient = feeRecipient;
+    }
+
     /**
      * @dev Emitted when new auction is created by the owner of the contract. Amount is valid only for ERC-1155 tokens
      */
@@ -70,13 +75,6 @@ contract NFTAuction is Ownable, Pausable {
     event AuctionBid(address indexed buyer, uint256 indexed amount, string id);
     event AuctionSettled(string id);
     event AuctionCancelled(string id);
-
-    constructor(uint256 fee, address feeRecipient) {
-        _auctionFee = fee;
-        _auctionFeeRecipient = feeRecipient;
-    }
-
-    receive() external payable {}
 
     function getAuction(string memory id) public view virtual returns (Auction memory) {
         return _auctions[id];
@@ -606,6 +604,8 @@ contract NFTAuction is Ownable, Pausable {
 
         return success;
     }
+
+    receive() external payable {}
 }
 
 // pragma solidity ^0.8.0;
